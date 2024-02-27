@@ -29,45 +29,38 @@ public class MyFirstTelegramBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         Long chatId = getChatId(update);
-        if (update.hasMessage() && update.getMessage().hasText()) {
-            String messageText = update.getMessage().getText().toLowerCase();
-            SendMessage message = new SendMessage();
-
-            switch (messageText) {
-                case "привіт":
-                    message = createMessage(chatId, "Привіт! Як до тебе можна звертатись?");
-                    break;
-                case "як справи?":
-                    message = createMessage(chatId, "Дякую, все добре! Як у тебе?");
-                    break;
-                case "дякую, добре":
-                case "все добре":
-                    message = createMessage(chatId, "Це чудово! Чим можу допомогти?");
-                    break;
-                case "до побачення":
-                    message = createMessage(chatId, "До побачення! Буду чекати на нашу наступну зустріч.");
-                    break;
-                default:
-                    if (messageText.startsWith("мене звати ")) {
-                        String name = messageText.substring("мене звати ".length());
-                        message = createMessage(chatId, "Радий знайомству, " + name + "! Я – *JavaUa_Bot*");
-                        message.setParseMode("Markdown");
-                    } else if (messageText.startsWith("допоможи мені ")) {
-                        String question = messageText.substring("допоможи мені ".length());
-                        message = createMessage(chatId, "Вибач, я ще не вмію " + question + " Але я обов'язково навчусь!");
-                        message.setParseMode("Markdown");
-                    } else {
-                        message = createMessage(chatId, "Вибач, я не розумію. Спробуй щось інше.");
-                    }
-            }
-
-            try {
-                execute(message);
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
-            }
+        if (update.hasMessage() && update.getMessage().getText().equals("/start")) {
+            addGlories(chatId,0);
+          SendMessage message = createMessage(chatId,STEP_1_TEXT,Map.of(
+                    "Злам холодильника", "step_1_btn"
+            ));
+          sendApiMethodAsync(message);
         }
-    }
+        if (update.hasCallbackQuery()) {
+
+            if (update.getCallbackQuery().getData().equals("step_1_btn") && getGlories(chatId) == 0) {
+                addGlories(chatId,20);
+                SendMessage message =   createMessage(chatId, STEP_2_TEXT,
+                        Map.of("Взяти сосиску! +20 слави", "step_2_btn",
+                                "Взяти рибку! +20 слави", "step_2_btn",
+                                "Скинути банку з огірками! +20 слави", "step_2_btn"));
+                sendApiMethodAsync(message);
+            }
+
+            if (update.getCallbackQuery().getData().equals("step_2_btn") && getGlories(chatId) == 20) {
+                addGlories(chatId,20);
+                SendMessage message =   createMessage(chatId, STEP_3_TEXT,
+                        Map.of("Злам робота пилососа", "step_2_btn"));
+                sendApiMethodAsync(message);
+            }
+
+
+
+        }//пергий if
+
+
+
+        }
 
     public static void main(String[] args) throws TelegramApiException {
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
