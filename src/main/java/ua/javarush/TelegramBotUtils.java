@@ -1,5 +1,6 @@
 package ua.javarush;
 
+import org.telegram.telegrambots.meta.api.methods.send.SendAudio;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
@@ -73,6 +74,18 @@ public class TelegramBotUtils {
             return photo;
         } catch (IOException e) {
             throw new RuntimeException("Can't create photo message!");
+        }
+    }
+    public static SendAudio createAudioMessage(Long chatId, String name) {
+        try {
+            SendAudio audio = new SendAudio();
+            InputFile inputFile = new InputFile();
+            inputFile.setMedia(Files.newInputStream(Path.of("audios/" + name + ".mp3")), name);
+            audio.setAudio(inputFile);
+            audio.setChatId(chatId);
+            return audio;
+        } catch (IOException e) {
+            throw new RuntimeException("Не можу створити аудіо повідомлення!");
         }
     }
 
